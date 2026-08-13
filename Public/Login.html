@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPark — Accès Privé</title>
+    <link rel="stylesheet" href="/fontawesome-free-6.5.1-web/css/all.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> -->
+    <link rel="stylesheet" href="">
+    <style>
+        :root {
+            --bg-dark: #04080e;
+            --container-bg: #091018;
+            --accent-blue: #00bfff;
+            --text-main: #ffffff;
+            --text-muted: #52718f;
+            --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 85% 15%, rgba(0, 191, 255, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 15% 85%, rgba(30, 64, 175, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text-main);
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 940px;
+            height: 580px;
+            background-color: var(--container-bg);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 28px;
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+            display: flex;
+            position: relative;
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.3), transparent);
+            z-index: 5;
+        }
+
+        .mobile-logo-container {
+            display: none;
+        }
+
+        .brand-header {
+            position: absolute;
+            top: 45px;
+            left: 60px;
+            z-index: 10;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-align: center;
+            margin-left: 175px;
+        }
+        .brand-name span { color: var(--accent-blue); }
+
+        .form-section {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 40px 0 60px;
+        }
+
+        .welcome-title {
+            text-align: center;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #ffffff, #a3b8cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 24px;
+            color: var(--text-muted);
+            font-size: 16px;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 16px 26px 16px 54px; 
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+            background: rgba(0, 191, 255, 0.02);
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.1);
+        }
+
+        input:focus ~ .input-icon {
+            color: var(--accent-blue);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 24px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            font-size: 16px;
+        }
+        .password-toggle:hover { color: var(--text-main); }
+
+        .submit-btn {
+            background: linear-gradient(90deg, var(--accent-blue), #0066ff);
+            border: none;
+            color: #04080e;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 191, 255, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 15px 30px rgba(0, 191, 255, 0.4);
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .visual-section {
+            flex: 1;
+            background: radial-gradient(circle at center, rgba(0, 191, 255, 0.15) 0%, transparent 65%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 40px;
+        }
+
+        .art-circle {
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .art-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .art-circle-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .art-circle-container::after {
+            content: '';
+            position: absolute;
+            inset: -15px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 191, 255, 0.2);
+            animation: rotate-orbit 40s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate-orbit {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 850px) {
+            body {
+                padding: 16px;
+            }
+
+            .main-container {
+                margin-top: 45px;
+                height: auto;
+            }
+
+            .visual-section { 
+                display: none; 
+            }
+
+            .brand-header {
+                display: none; 
+            }
+
+            .mobile-logo-container {
+                overflow: hidden;
+                display: flex;
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background-color: var(--container-bg);
+                border: 2px solid rgba(0, 191, 255, 0.3);
+                box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
+                z-index: 20;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-logo-container img {
+                width: 450px;
+                height: 450px;
+                object-fit: contain;
+            }
+
+            .form-section { 
+                padding: 65px 24px 32px 24px; 
+            }
+
+            .welcome-title {
+                font-size: 28px;
+                text-align: center;
+                margin-bottom: 24px;
+                margin-top: 50px; 
+            }
+
+            .mobile-brand {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* pup */
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            min-width: 300px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast i {
+            font-size: 18px;
+        }
+
+        .toast-error {
+            background: rgba(239, 68, 68, 0.9);
+            border-left: 4px solid #f87171;
+        }
+
+        .toast-info {
+            background: rgba(14, 165, 233, 0.9);
+            border-left: 4px solid #38bdf8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="mobile-logo-container">
+            <img src="/Logo.png" alt="HPark Logo">
+        </div>
+
+        <div class="brand-header">
+            <div class="brand-name">H<span>Park</span></div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="welcome-title">Bienvenue</h2>
+
+            <form id="loginForm" autocomplete="off" enctype="application/json">
+                <div class="form-group">
+                    <label for="username">N° de matriculation</label>
+                    <div class="input-wrapper">
+                        <input name="matriculation" type="text" id="username" placeholder="N° de matriculation" required>
+                        <i class="fa-solid fa-id-card input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <input name="password" type="password" id="password" placeholder="••••••••" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" id="togglePass">
+                            <i class="fa-regular fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+        </div>
+
+        <div class="visual-section">
+            <div class="art-circle-container">
+                <div class="art-circle">
+                    <img src="/Logo.png" alt="HPark Logo">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        const togglePass = document.getElementById('togglePass');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePass.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            
+            if (isPassword) {
+                eyeIcon.className = 'fa-regular fa-eye-slash';
+            } else {
+                eyeIcon.className = 'fa-regular fa-eye';
+            }
+        });
+
+        function showToast(message, type = 'info', duration = 7000) {
+            const container = document.getElementById('toast-container');
+
+            const icons = {
+                error: 'fa-solid fa-circle-xmark',
+                info: 'fa-solid fa-circle-info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            toast.innerHTML = `
+                <i class="${icons[type] || icons.info}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/HPark/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    localStorage.setItem('Token_Hpark', result.user);
+                    window.location.href = '/HPark/dashboard';
+                } else {
+                    const result = await response.json();
+                    showToast(result.message, 'error');
+                    form.reset();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Une erreur est survenue. Veuillez réessayer.', 'info');
+                form.reset();
+            }
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPark — Dashboard</title>
+    <link rel="stylesheet" href="/fontawesome-free-6.5.1-web/css/all.min.css">
+    <script>
+        const token = localStorage.getItem('Token_Hpark');
+        if (!token) {
+            alert("Accès refusé. Veuillez vous connecter.");
+            window.location.href = '/HPark';
+        }
+    </script>
+    <style>
+        :root {
+            --bg-dark: #04080e;
+            --container-bg: #091018;
+            --sidebar-bg: #060b11;
+            --card-bg: rgba(9, 16, 24, 0.7);
+            --accent-blue: #00bfff;
+            --accent-purple: #7c3aed;
+            --text-main: #ffffff;
+            --text-muted: #52718f;
+            --border-color: rgba(255, 255, 255, 0.04);
+            --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 90% 10%, rgba(0, 191, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+        .sidebar-brand span { color: var(--accent-blue); }
+
+        .sidebar-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .sidebar-item {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sidebar-link i {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            color: var(--text-main);
+            background: rgba(0, 191, 255, 0.06);
+        }
+
+        .sidebar-link.active {
+            border-left: 3px solid var(--accent-blue);
+            background: linear-gradient(90deg, rgba(0, 191, 255, 0.08), transparent);
+            padding-left: 13px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        #logout-btn {
+            color: #ff4a4a !important;
+            background: rgba(255, 74, 74, 0.02);
+            border: 1px solid rgba(255, 74, 74, 0.1);
+        }
+
+        #logout-btn:hover {
+            background: rgba(255, 74, 74, 0.08) !important;
+            border-color: rgba(255, 74, 74, 0.3);
+            box-shadow: 0 0 15px rgba(255, 74, 74, 0.15);
+            color: #ff6b6b !important;
+        }
+
+        #logout-btn:hover i {
+            transform: translateX(4px);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .topbar {
+            height: 80px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(4, 8, 14, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            background: transparent;
+            border: none;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            object-fit: cover;
+        }
+
+        .user-info .user-name {
+            font-size: 13px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .user-info .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .dashboard-body {
+            padding: 40px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+        .content-section.active-section {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: transparent;
+        }
+        .stat-card.blue::before { background: var(--accent-blue); }
+        .stat-card.purple::before { background: var(--accent-purple); }
+
+        .stat-info .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .stat-info .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .blue .stat-icon-box { background: rgba(0, 191, 255, 0.1); color: var(--accent-blue); }
+        .purple .stat-icon-box { background: rgba(124, 58, 237, 0.1); color: var(--accent-purple); }
+
+        .content-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .data-box {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .box-header h3 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .activity-item:last-child { border: none; padding: 0; }
+
+        .activity-details {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .activity-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .activity-text .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+        }
+        .activity-text .activity-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .activity-status {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        .status-in { background: rgba(0, 255, 128, 0.1); color: #00ff80; }
+        .status-out { background: rgba(0, 191, 255, 0.1); color: var(--accent-blue); }
+
+        .mock-chart-container {
+            height: 270px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-top: 20px;
+        }
+
+        .chart-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            gap: 10px;
+        }
+
+        .chart-bar {
+            width: 26px;
+            background: linear-gradient(to top, var(--accent-purple), var(--accent-blue));
+            border-radius: 6px 6px 0 0;
+            box-shadow: 0 5px 15px rgba(0, 191, 255, 0.15);
+            transform-origin: bottom;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chart-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .car-table-container {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 80px;
+        }
+
+        .car-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .car-table th {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .car-table td {
+            padding: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            vertical-align: middle;
+        }
+
+        .car-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .car-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .car-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .car-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .car-avatar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(0, 191, 255, 0.05);
+            /* color: var(--accent-blue); */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        } 
+
+        /* .car-avatar-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+        } */
+
+        .plate-number {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .btn-exit {
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-exit:hover {
+            background: var(--accent-purple);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+            border-color: transparent;
+        }
+
+        .floating-add-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px; 
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 191, 255, 0.3);
+            transition: all 0.2s ease;
+            z-index: 99;
+        }
+
+        .floating-add-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 25px rgba(124, 58, 237, 0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 8, 14, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background-color: var(--container-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 480px;
+            padding: 20px 30px 0px 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.open .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h3 i {
+            color: var(--accent-blue);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .modal-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #00e5ff;
+            margin: 15px 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-separator {
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+            margin: 20px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .detail-value .plate-style {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300d2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+        }
+
+        .custom-select:focus {
+            border-color: #00d2ff;
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
+        }
+
+        .custom-select option {
+            background-color: #0d1117;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .custom-select option[disabled] {
+            color: #8b949e;
+        }
+
+        @media (max-width: 1024px) {
+            .content-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 20px; }
+            .sidebar-brand { margin-bottom: 20px; }
+            .sidebar-menu { display: none; }
+            .main-content { height: auto; }
+            .topbar { padding: 0 20px; }
+            .dashboard-body { padding: 20px; }
+            .floating-add-btn { right: 20px; bottom: 20px; }
+        }
+
+        #addVehicleModal .modal-body {
+            max-height: 400px;
+            overflow-y: auto;  
+            padding-right: 8px; 
+        }
+
+        #addVehicleModal .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        #addVehicleModal .modal-body::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 4px;
+        }
+        #addVehicleModal .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(0, 191, 255, 0.2);
+            border-radius: 4px;
+        }
+        #addVehicleModal .modal-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 191, 255, 0.4);
+        }
+
+        /* Overlay plein écran pour centrer la pop-up */
+.success-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Carte Pop-up */
+.success-popup-card {
+    background: #121824; /* Assorti à ton thème sombre */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transform: scale(0.7);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-popup-card h3 {
+    color: #ffffff;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* État d'ouverture */
+.success-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.success-popup-overlay.active .success-popup-card {
+    transform: scale(1);
+}
+
+/* Animation du cercle et du Check SVG */
+.checkmark-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.checkmark {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #10b981; /* Vert succès */
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #10b981;
+    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s bounce;
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #10b981;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes fill {
+    100% { box-shadow: inset 0px 0px 0px 40px rgba(16, 185, 129, 0.1); }
+}
+
+.error-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.error-popup-card {
+    background: #121824;
+    border: 1px solid rgba(239, 68, 68, 0.3); /* Bordure rouge claire */
+    padding: 30px 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transform: scale(0.7);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.error-popup-card h3 {
+    color: #ffffff;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* État actif */
+.error-popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.error-popup-overlay.active .error-popup-card {
+    transform: scale(1);
+}
+
+/* Animation Croix SVG (Rouge) */
+.crossmark {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #ef4444; /* Rouge erreur */
+    stroke-miterlimit: 10;
+    animation: fillError 0.4s ease-in-out 0.4s forwards;
+}
+
+.crossmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #ef4444;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.crossmark-check {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes fillError {
+    100% { box-shadow: inset 0px 0px 0px 40px rgba(239, 68, 68, 0.1); }
+}
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                H<span>Park.</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <div class="sidebar-link active" id="link-general">
+                        <i class="fa-solid fa-chart-pie"></i> Vue générale
+                    </div>
+                </li>
+                <li class="sidebar-item">
+                    <div class="sidebar-link" id="link-voiture">
+                        <i class="fa-solid fa-car"></i> Voiture
+                    </div>
+                </li>
+                <li class="sidebar-item">
+                    <div class="sidebar-link" id="link-historique">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Historique
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-link" id="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="page-title">
+                <h1>Vue générale</h1>
+            </div>
+            
+            <div class="user-profile">
+                <img src="/Logo.png" alt="Profil Logo" class="avatar">
+                <div class="user-info">
+                    <span class="user-name">Administrateur</span>
+                    <span class="user-role">HPark Team</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-body">
+            
+            <div id="section-general" class="content-section active-section">
+                <section class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-info">
+                            <span class="stat-label">véhicules en stationnement</span>
+                            <span id="stat-en-cours" class="stat-value">0</span>
+                            <span  class="stat-value">/20 places</span>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="fa-solid fa-square-parking"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <div class="stat-info">
+                            <span class="stat-label">Véhicules expédiés</span>
+                            <span id="stat-expédies" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-info">
+                            <span class="stat-label">Tarif journalier</span>
+                            <span id="stat-journalier" class="stat-value">0.00 Ar</span>
+                        </div>
+                        <div class="stat-icon-box">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="content-row">
+                    <div class="data-box">
+                        <div class="box-header">
+                            <h3>Tarif hebdomadaire</h3>
+                            <span style="font-size: 13px; color: var(--text-muted);"> Tarif cumulées / jour (€)</span>
+                        </div>
+                        
+                        <div class="mock-chart-container" id="chart-container">
+                            <!-- Statistique en bar -->
+                        </div>
+                    </div>
+
+                    <div class="data-box">
+                        <div class="box-header">
+                            <h3>Historiques</h3>
+                        </div>
+                        <div class="activity-list" id="recent-exits-list">
+                            <!-- 3 dernier historique -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-voiture" class="content-section">
+                <div class="car-table-container">
+                    <table class="car-table">
+                        <thead>
+                            <tr>
+                                <th>Propriétaire</th>
+                                <th>Immatriculation</th>
+                                <th>Marque / Modèle</th>
+                                <th>Heure d'entrée</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-parkings-list">
+                            <!-- <tr id="example-row">
+                                <td>
+                                    <div class="car-info-cell">
+                                        <div class="car-avatar-icon">
+                                            <span id="row-parking-number">01</span>
+                                        </div>
+                                        <div class="car-owner-name" id="row-owner">Jean Dupont</div>
+                                    </div>
+                                </td>
+                                <td><span class="plate-number" id="row-plate">AA-123-BB</span></td>
+                                <td class="car-brand" id="row-brand">Peugeot 208</td>
+                                <td><span class="entry-time" id="row-time" style="color: var(--text-muted);">08:45</span></td>
+                                <td style="text-align: right;">
+                                    <button class="btn-exit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sortir</button>
+                                </td>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="floating-add-btn" title="Ajouter une nouvelle voiture">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div id="section-historique" class="content-section">
+                <div class="car-table-container">
+                    <table class="car-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Propriétaire</th>
+                                <th>Immatriculation</th>
+                                <th>Marque / Modèle</th>
+                                <th>Heure d'entrée</th>
+                                <th>Heure de sortie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liste-historique">
+                            <!-- historique -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-circle-info"></i> Détails du véhicule</h3>
+                <button class="modal-close" id="closeModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="modal-section-title">
+                    <i class="fa-solid fa-user"></i> Informations Propriétaire
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Propriétaire</span>
+                    <span class="detail-value" id="modalOwner">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Téléphone</span>
+                    <span class="detail-value" id="modalPhone">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CIN</span>
+                    <span class="detail-value" id="modalCin">-</span>
+                </div>
+
+                <div class="modal-separator"></div>
+
+                <div class="modal-section-title">
+                    <i class="fa-solid fa-car"></i> Informations Véhicule & Stationnement
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Marque / Modèle</span>
+                    <span class="detail-value" id="modalBrand">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Immatriculation</span>
+                    <span class="detail-value"><span class="plate-style" id="modalPlate">-</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Couleur</span>
+                    <span class="detail-value" id="modalColor">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Numéro du parking</span>
+                    <span class="detail-value" id="modalSpot">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date / Heure d'entrée</span>
+                    <span class="detail-value" id="modalTime">-</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addVehicleModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-plus-circle"></i> Ajouter un véhicule</h3>
+                <button class="modal-close" id="closeAddModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="addVehicleForm" autocomplete="off" enctype="application/json">
+                
+                <div class="modal-body">
+                    
+                    <div class="modal-section-title"><i class="fa-solid fa-user"></i> Informations Propriétaire</div>
+                    
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputOwner">Propriétaire</label>
+                        <input name="proprietaire" type="text" id="inputOwner" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputPhone">Téléphone</label>
+                        <input name="telephone" type="text" id="inputPhone" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputCin">CIN</label>
+                        <input name="cin" type="text" id="inputCin" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+
+                    <div class="modal-separator"></div>
+
+                    <div class="modal-section-title"><i class="fa-solid fa-car"></i> Informations Véhicule & Stationnement</div>
+                    
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputBrand">Marque / Modèle</label>
+                        <input name="marque_modele" type="text" id="inputBrand" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputPlate">Immatriculation</label>
+                        <input name="immatriculation" type="text" id="inputPlate" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white; font-family: monospace;">
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputColor">Couleur</label>
+                        <input name="couleur" type="text" id="inputColor" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <label class="detail-label" for="inputSpot">Numéro du parking</label>
+                        <select name="numero_parking" id="inputSpot" class="custom-select">
+                            <!-- numero des parking -->
+                        </select>
+                    </div>
+                </div> 
+
+                <div style="margin-bottom: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.04); text-align: right;">
+                    <button type="submit" class="btn-exit" style="background: rgba(0, 191, 255, 0.1); border: 1px solid rgba(0, 191, 255, 0.3); color: var(--accent-blue);">
+                        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+        
+    <div class="modal-overlay" id="historyDetailModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Détails de l'archive</h3>
+                <button class="modal-close" id="closeHistoryModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="modal-section-title">
+                    <i class="fa-solid fa-user"></i> Informations Propriétaire
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Propriétaire</span>
+                    <span class="detail-value" id="histModalOwner">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Téléphone</span>
+                    <span class="detail-value" id="histModalPhone">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CIN</span>
+                    <span class="detail-value" id="histModalCin">-</span>
+                </div>
+
+                <div class="modal-separator"></div>
+
+                <div class="modal-section-title">
+                    <i class="fa-solid fa-car"></i> Informations Véhicule & Flux
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Marque / Modèle</span>
+                    <span class="detail-value" id="histModalBrand">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Immatriculation</span>
+                    <span class="detail-value"><span class="plate-style" id="histModalPlate">-</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Couleur</span>
+                    <span class="detail-value" id="histModalColor">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Numéro du parking</span>
+                    <span class="detail-value" id="histModalSpot">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Heure d'entrée</span>
+                    <span class="detail-value" id="histModalTimeIn" style="color: #cbd5e1;">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Heure de sortie</span>
+                    <span class="detail-value" id="histModalTimeOut" style="color: #ff4a4a;">-</span>
+                </div>
+                <div class="detail-row" style="border-top: 1px dashed rgba(255,255,255,0.08); margin-top: 10px; padding-top: 14px;">
+                    <span class="detail-label" style="color: var(--accent-blue);">Tarif appliqué</span>
+                    <span class="detail-value" id="histModalPrice" style="color: #00ff80; font-weight: 700;">-</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-container" style="max-width: 360px; padding: 24px; text-align: center;">
+            <div style="color: #ff4a4a; font-size: 40px; margin-bottom: 16px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Déconnexion</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">
+                Êtes-vous sûr de vouloir vous déconnecter de HPark ?
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="cancelLogout" class="btn-exit" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main);">
+                    Annuler
+                </button>
+                <button id="confirmLogout" class="btn-exit" style="background: rgba(255, 74, 74, 0.1); border: 1px solid rgba(255, 74, 74, 0.2); color: #ff4a4a;">
+                    Se déconnecter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-popup-overlay" id="successPopup">
+        <div class="success-popup-card">
+            <div class="check-icon-wrapper">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+            <h3>Succès !</h3>
+        </div>
+    </div>
+
+    <div class="error-popup-overlay" id="errorPopup">
+        <div class="error-popup-card">
+            <div class="cross-icon-wrapper">
+                <svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="crossmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="crossmark-check" fill="none" d="M16 16 L36 36 M36 16 L16 36"/>
+                </svg>
+            </div>
+            <h3 id="errorMessage">Une erreur est survenue !</h3>
+        </div>
+    </div>
+
+    <script>
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const sections = document.querySelectorAll('.content-section');
+        const pageTitleText = document.querySelector('.page-title h1');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (this.id === 'logout-btn') {
+                    console.log("Déconnexion demandée...");
+                    return;
+                }
+
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                const pageTitle = this.textContent.trim();
+                pageTitleText.textContent = pageTitle;
+
+                const sectionName = this.id.replace('link-', '');
+                const targetSectionId = 'section-' + sectionName;
+                
+                sections.forEach(section => {
+                    if (section.id === targetSectionId) {
+                        section.classList.add('active-section');
+                    } else {
+                        section.classList.remove('active-section');
+                    }
+                });
+            });
+        });
+
+        const modal = document.getElementById('detailModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const exampleRow = document.getElementById('example-row');
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('open');
+            }
+        });
+
+        const addVehicleModal = document.getElementById('addVehicleModal');
+        const floatingAddBtn = document.querySelector('.floating-add-btn');
+        const closeAddModalBtn = document.getElementById('closeAddModal');
+        const addVehicleForm = document.getElementById('addVehicleForm');
+
+        if (floatingAddBtn) {
+            floatingAddBtn.addEventListener('click', () => {
+                addVehicleModal.classList.add('open');
+            });
+        }
+
+        if (closeAddModalBtn) {
+            closeAddModalBtn.addEventListener('click', () => {
+                addVehicleModal.classList.remove('open');
+            });
+        }
+
+        addVehicleModal.addEventListener('click', (e) => {
+            if (e.target === addVehicleModal) {
+                addVehicleModal.classList.remove('open');
+            }
+        });
+
+        const historyModal = document.getElementById('historyDetailModal');
+        const closeHistoryModalBtn = document.getElementById('closeHistoryModal');
+        const historyRows = document.querySelectorAll('.history-row');
+
+        historyRows.forEach(row => {
+            row.addEventListener('click', function() {
+                document.getElementById('histModalOwner').textContent = this.getAttribute('data-owner');
+                document.getElementById('histModalPhone').textContent = this.getAttribute('data-phone');
+                document.getElementById('histModalCin').textContent = this.getAttribute('data-cin');
+                document.getElementById('histModalBrand').textContent = this.getAttribute('data-brand');
+                document.getElementById('histModalPlate').textContent = this.getAttribute('data-plate');
+                document.getElementById('histModalColor').textContent = this.getAttribute('data-color');
+                document.getElementById('histModalSpot').textContent = this.getAttribute('data-spot');
+                document.getElementById('histModalTimeIn').textContent = this.getAttribute('data-time-in');
+                document.getElementById('histModalTimeOut').textContent = this.getAttribute('data-time-out');
+                document.getElementById('histModalPrice').textContent = this.getAttribute('data-price');
+
+                historyModal.classList.add('open');
+            });
+        });
+
+        if (closeHistoryModalBtn) {
+            closeHistoryModalBtn.addEventListener('click', () => {
+                historyModal.classList.remove('open');
+            });
+        }
+
+        historyModal.addEventListener('click', (e) => {
+            if (e.target === historyModal) {
+                historyModal.classList.remove('open');
+            }
+        });
+
+        const logoutBtn = document.getElementById('logout-btn');
+        const logoutModal = document.getElementById('logoutModal');
+        const cancelLogoutBtn = document.getElementById('cancelLogout');
+        const confirmLogoutBtn = document.getElementById('confirmLogout');
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                logoutModal.classList.add('open');
+            });
+        }
+
+        if (cancelLogoutBtn) {
+            cancelLogoutBtn.addEventListener('click', () => {
+                logoutModal.classList.remove('open');
+            });
+        }
+
+        logoutModal.addEventListener('click', (e) => {
+            if (e.target === logoutModal) {
+                logoutModal.classList.remove('open');
+            }
+        });
+
+        if (confirmLogoutBtn) {
+            confirmLogoutBtn.addEventListener('click', () => {
+                logoutModal.classList.remove('open');
+                localStorage.clear();
+                window.location.href = '/HPark';
+            });
+        }
+
+        function showSuccessCheck() {
+            const popup = document.getElementById('successPopup');
+            if (!popup) return;
+
+            popup.classList.add('active');
+
+            setTimeout(() => {
+                popup.classList.remove('active');
+            }, 1800);
+        }
+
+        function showErrorCheck() {
+            const popup = document.getElementById('errorPopup');
+            if (!popup) return;
+
+            popup.classList.add('active');
+
+            setTimeout(() => {
+                popup.classList.remove('active');
+            }, 2000);
+        }
+
+        async function loadDashboardStats() {
+            const bar = document.getElementById('chart-container');
+            const historique3 = document.getElementById('recent-exits-list');
+            bar.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/HPark/Stat');
+                if (!response.ok) throw new Error('Erreur réseau');
+ 
+                const data = await response.json();
+                const exits = data.histstats || [];
+                console.log("Statistiques reçues :", data);
+
+                document.getElementById('stat-en-cours').textContent = data.data.enCours;
+                document.getElementById('stat-expédies').textContent = data.data.expedies;
+                document.getElementById('stat-journalier').textContent = `${data.data.journalier.toFixed(2)} Ar`;
+
+                const weeklyData = data.barData;
+                const Dates = [];
+                const Maxbar = 180;
+
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    
+                    const isoDate = d.toISOString().split('T')[0]; 
+                    const labelDay = String(d.getDate()).padStart(2, '0'); 
+
+                    const match = weeklyData.find(item => item.date_jour.startsWith(isoDate));
+                    const total = match ? Number(match.total_recette) : 0;
+
+                    Dates.push({ label: labelDay, total: total });
+
+                    
+                }
+                console.log(Dates);
+
+                const maxVal = Math.max(...Dates.map(d => d.total), 100);
+
+                Dates.forEach(day => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'chart-bar-wrapper';
+                    
+                    const heightInPx = Math.round((day.total / maxVal) * Maxbar);
+
+                    wrapper.innerHTML = `
+                        <div class="chart-bar" style="height: 0px;" title="${day.total.toFixed(2)} Ar"></div>
+                        <span class="chart-label">${day.label}</span>
+                        <span class="chart-label">${day.total > 0 ? day.total.toFixed(0) + ' Ar' : '0 Ar'}</span>
+                    `;
+                    bar.appendChild(wrapper);
+
+                    setTimeout(() => {
+                        const bar = wrapper.querySelector('.chart-bar');
+                        bar.style.height = `${Math.max(heightInPx, 8)}px`; 
+                    }, 50);
+                });
+
+                if (data.histstats.length === 0) {
+                    historique3.innerHTML = '<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;">Aucune sortie récente</p>';
+                    return;
+                };
+
+                historique3.innerHTML = exits.map(item => {
+                    let timeText = 'À l\'instant';
+                    const mins = item.minutes_ecoulees;
+
+                    if (mins >= 60) {
+                        const hours = Math.floor(mins / 60);
+                        timeText = `Sorti il y a ${hours} h`;
+                    } else if (mins > 0) {
+                        timeText = `Sorti il y a ${mins} min`;
+                    }
+
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-details">
+                                <div class="activity-icon">
+                                    <i class="fa-solid fa-car-side"></i>
+                                </div>
+                                <div class="activity-text">
+                                    <span class="activity-title">${item.proprietaire} (${item.immatriculation})</span>
+                                    <span class="activity-time">${timeText}</span>
+                                </div>
+                            </div>
+                            <span class="activity-status status-out">Sortie</span>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error("Impossible de charger les statistiques :", error);
+            }
+        };
+
+        async function loadActiveParkings() {
+            const tbody = document.getElementById('active-parkings-list');
+            if (!tbody) return;
+
+            try {
+                const response = await fetch('/api/HPark/Voitures');
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const result = await response.json();
+                const parkings = Array.isArray(result) ? result : (result.data || []);
+
+                if (parkings.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                Aucun véhicule actuellement garé.
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = parkings.map(item => {
+                    const placeFormatted = String(item.numero_parking || '0').padStart(2, '0');
+                    const itemData = JSON.stringify(item).replace(/"/g, '&quot;');
+
+                    return `
+                        <tr onclick="openDetailModal(${itemData})">
+                            <td>
+                                <div class="car-info-cell">
+                                    <div class="car-avatar-icon">
+                                        <span>${placeFormatted}</span>
+                                    </div>
+                                    <div class="car-owner-name">${item.proprietaire}</div>
+                                </div>
+                            </td>
+                            <td><span class="plate-number">${item.immatriculation}</span></td>
+                            <td class="car-brand">${item.marque_modele || '-'}</td>
+                            <td><span class="entry-time" style="color: var(--text-muted);">${item.heure_entrer}</span></td>
+                            <td style="text-align: right;">
+                                <button type="button" class="btn-exit" onclick="Sorti(event, ${item.id})">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sortir
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des stationnements actifs :", error);
+            }
+        };
+
+        function openDetailModal(data) {
+            document.getElementById('modalOwner').textContent = data.proprietaire || '-';
+            document.getElementById('modalPhone').textContent = data.telephone || '-';
+            document.getElementById('modalCin').textContent = data.cin || '-';
+            document.getElementById('modalBrand').textContent = data.marque_modele || '-';
+            document.getElementById('modalPlate').textContent = data.immatriculation || '-';
+            document.getElementById('modalColor').textContent = data.couleur || '-';
+            document.getElementById('modalSpot').textContent = data.numero_parking !== undefined ? String(data.numero_parking).padStart(2, '0') : '-';
+            document.getElementById('modalTime').textContent ='(' + data.date_stationnement + ') ' + data.heure_entrer || '-';
+
+            const modal = document.getElementById('detailModal');
+            if (modal) modal.classList.add('open');
+        };
+
+        function rempliselecte(Numeros) {
+            const selectElement = document.getElementById('inputSpot');
+            const Numero = Array.isArray(Numeros.data) ? Numeros.data : [];
+            console.log("Numéros de parking reçus :", Numero);
+            if (!selectElement) return;
+
+            const numeroParking = Numero.map(num => parseInt(num.numero_parking, 10));
+
+            let optionsHTML = '<option value="" disabled selected>Choisir une place...</option>';
+
+            for (let i = 1; i <= 20; i++) {
+                if (!numeroParking.includes(i)) {
+                    const formattedNum = String(i).padStart(2, '0');
+                    optionsHTML += `<option value="${formattedNum}">${formattedNum}</option>`;
+                };
+            };
+
+            selectElement.innerHTML = optionsHTML;
+        };
+
+        async function listeNumeroParking() {
+            try {
+                const response = await fetch('/api/HPark/NumeroParking');
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const result = await response.json();
+                rempliselecte(result);
+
+            } catch (error) {
+                console.error("Erreur lors du chargement des numéros de parking :", error);
+            }
+        };
+
+        addVehicleForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            console.log(data);
+
+            try {
+                const response = await fetch('/api/HPark/ajout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Erreur lors de l\'ajout du véhicule');
+
+                // const result = await response.json();
+                // console.log("Véhicule ajouté :", result);
+
+                // console.log(response, "Véhicule ajouté avec succès !");
+
+                const result = await response.json();
+                addVehicleModal.classList.remove('open');
+                this.reset();
+                if (result.success) {
+                    loadDashboardStats();
+                    loadActiveParkings();
+                    listeNumeroParking();
+                    showSuccessCheck();
+                }else {
+                    showErrorCheck()
+                }
+
+            } catch (error) {
+                alert("Une erreur est survenue lors de l'ajout du véhicule. Veuillez réessayer.");
+                console.error("Erreur lors de l'ajout du véhicule :", error);
+            }
+        });
+
+        async function Sorti(e, id) {
+
+            e.stopPropagation(); 
+            const response = await fetch('/api/HPark/Sortie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log("Véhicule sorti :", result);
+                loadDashboardStats();
+                loadActiveParkings();
+                listeNumeroParking();
+                showSuccessCheck();
+                chargerHistorique();
+
+            } else {
+                console.error("Erreur lors de la sortie du véhicule :", response.statusText);
+                showErrorCheck();
+            }
+
+        };
+
+        async function chargerHistorique() {
+            try {
+                const response = await fetch('/api/HPark/historique'); 
+                const result = await response.json();
+
+                if (!result.success) return;
+
+                const tbody = document.getElementById('liste-historique');
+                tbody.innerHTML = '';
+
+                result.data.forEach(item => {
+                    const numParking = `P-${String(item.numero_parking).padStart(2, '0')}`;
+
+                    const rowHTML = `
+                        <tr class="history-row"
+                            data-owner="${item.proprietaire}"
+                            data-phone="${item.telephone || ''}"
+                            data-cin="${item.cin || ''}"
+                            data-brand="${item.marque_modele || ''}"
+                            data-plate="${item.immatriculation}"
+                            data-color="${item.couleur || ''}"
+                            data-spot="${numParking}"
+                            data-time-in="${item.heure_entree}"
+                            data-time-out="${item.heure_sortie}"
+                            data-price="${item.prix} Ar">
+                            <td>
+                                <div class="car-info-cell">
+                                    <div class="car-avatar-icon">
+                                        <span>${numParking}</span>
+                                    </div>
+                                    <div class="car-owner-name">${item.proprietaire}</div>
+                                </div>
+                            </td>
+                            <td><span class="plate-number">${item.immatriculation}</span></td>
+                            <td>${item.marque_modele || '-'}</td>
+                            <td><span style="color: var(--text-muted);">${item.heure_entree}</span></td>
+                            <td><span style="color: #ff4a4a; font-weight: 600;">${item.heure_sortie}</span></td>
+                        </tr>
+                    `;
+
+                    tbody.insertAdjacentHTML('beforeend', rowHTML);
+                });
+
+            } catch (error) {
+                console.error("Erreur lors du chargement de l'historique :", error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardStats);
+        document.addEventListener('DOMContentLoaded', loadActiveParkings);
+        document.addEventListener('DOMContentLoaded', listeNumeroParking);
+        document.addEventListener('DOMContentLoaded', chargerHistorique);
+    </script>
+</body>
+</html>
