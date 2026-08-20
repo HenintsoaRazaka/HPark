@@ -670,172 +670,166 @@
             background: rgba(0, 191, 255, 0.4);
         }
 
-        /* Overlay plein écran pour centrer la pop-up */
-.success-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
+        .success-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
 
-/* Carte Pop-up */
-.success-popup-card {
-    background: #121824; /* Assorti à ton thème sombre */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 30px 40px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    transform: scale(0.7);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+        .success-popup-card {
+            background: #121824;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.success-popup-card h3 {
-    color: #ffffff;
-    margin-top: 15px;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
+        .success-popup-card h3 {
+            color: #ffffff;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
 
-/* État d'ouverture */
-.success-popup-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+        .success-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
-.success-popup-overlay.active .success-popup-card {
-    transform: scale(1);
-}
+        .success-popup-overlay.active .success-popup-card {
+            transform: scale(1);
+        }
 
-/* Animation du cercle et du Check SVG */
-.checkmark-wrapper {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto;
-}
+        .checkmark-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
 
-.checkmark {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 3;
-    stroke: #10b981; /* Vert succès */
-    stroke-miterlimit: 10;
-    box-shadow: inset 0px 0px 0px #10b981;
-    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s bounce;
-}
+        .checkmark {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #10b981;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #10b981;
+            animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s bounce;
+        }
 
-.checkmark-circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 3;
-    stroke-miterlimit: 10;
-    stroke: #10b981;
-    fill: none;
-    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #10b981;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
 
-.checkmark-check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
-}
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        }
 
-@keyframes stroke {
-    100% { stroke-dashoffset: 0; }
-}
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
 
-@keyframes fill {
-    100% { box-shadow: inset 0px 0px 0px 40px rgba(16, 185, 129, 0.1); }
-}
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 40px rgba(16, 185, 129, 0.1); }
+        }
 
-.error-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
+        .error-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
 
-.error-popup-card {
-    background: #121824;
-    border: 1px solid rgba(239, 68, 68, 0.3); /* Bordure rouge claire */
-    padding: 30px 40px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    transform: scale(0.7);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+        .error-popup-card {
+            background: #121824;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 30px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.error-popup-card h3 {
-    color: #ffffff;
-    margin-top: 15px;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
+        .error-popup-card h3 {
+            color: #ffffff;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
 
-/* État actif */
-.error-popup-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+        .error-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
-.error-popup-overlay.active .error-popup-card {
-    transform: scale(1);
-}
+        .error-popup-overlay.active .error-popup-card {
+            transform: scale(1);
+        }
 
-/* Animation Croix SVG (Rouge) */
-.crossmark {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 3;
-    stroke: #ef4444; /* Rouge erreur */
-    stroke-miterlimit: 10;
-    animation: fillError 0.4s ease-in-out 0.4s forwards;
-}
+        .crossmark {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #ef4444;
+            stroke-miterlimit: 10;
+            animation: fillError 0.4s ease-in-out 0.4s forwards;
+        }
 
-.crossmark-circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 3;
-    stroke: #ef4444;
-    fill: none;
-    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
+        .crossmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke: #ef4444;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
 
-.crossmark-check {
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
-}
+        .crossmark-check {
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        }
 
-@keyframes fillError {
-    100% { box-shadow: inset 0px 0px 0px 40px rgba(239, 68, 68, 0.1); }
-}
+        @keyframes fillError {
+            100% { box-shadow: inset 0px 0px 0px 40px rgba(239, 68, 68, 0.1); }
+        }
     </style>
 </head>
 <body>
